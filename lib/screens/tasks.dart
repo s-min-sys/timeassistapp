@@ -3,9 +3,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<List<Task>> fetchTasks() async {
-  final response = await http.get(Uri.parse('http://127.0.0.1:11110/tasks'));
+  final response =
+      await http.get(Uri.parse('${dotenv.env['SERVER_DOMAIN']}/tasks'));
 
   if (response.statusCode == 200) {
     // If the server did return a 200 OK response,
@@ -109,10 +111,8 @@ class _TaskWidgetState extends State<TasksWidget> {
                           ),
                           onPressed: () {
                             http
-                                .post(
-                                  Uri.parse(
-                                      'http://127.0.0.1:11110/tasks/${snapshot.data![index].id}/done'),
-                                )
+                                .post(Uri.parse(
+                                    '${dotenv.env['SERVER_DOMAIN']}/tasks/${snapshot.data![index].id}/done'))
                                 .then((value) => futureAlbum = fetchTasks());
                           },
                           tooltip: 'done',
