@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:timeassistapp/screens/main.dart';
+import 'package:timeassistapp/screens/login.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
@@ -13,7 +13,7 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: MainWidget(),
+      home: Login(),
     );
   }
 }
