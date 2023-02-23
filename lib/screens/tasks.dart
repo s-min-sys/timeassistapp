@@ -40,10 +40,14 @@ class Task {
   });
 
   factory Task.fromJson(Map<String, dynamic> json) {
+    var subTitle = '';
+    if (json.containsKey('sub_title')) {
+      subTitle = json['sub_title'];
+    }
     return Task(
       id: json['id'],
       title: json['value'],
-      subTitle: json['sub_title'],
+      subTitle: subTitle,
     );
   }
 }
@@ -104,7 +108,7 @@ class _TaskWidgetState extends State<TasksWidget> {
         children: [
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(32),
+              padding: const EdgeInsets.all(12),
               child: FutureBuilder<List<Task>>(
                 future: futureAlbum,
                 builder: (context, snapshot) {
