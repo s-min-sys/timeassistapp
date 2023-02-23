@@ -31,16 +31,19 @@ Future<List<Task>> fetchTasks() async {
 class Task {
   final String id;
   final String title;
+  final String subTitle;
 
   const Task({
     required this.id,
     required this.title,
+    required this.subTitle,
   });
 
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
       id: json['id'],
       title: json['value'],
+      subTitle: json['sub_title'],
     );
   }
 }
@@ -129,6 +132,9 @@ class _TaskWidgetState extends State<TasksWidget> {
                         ),
                         title: Text(
                           snapshot.data![index].title,
+                        ),
+                        subtitle: Text(
+                          snapshot.data![index].subTitle,
                         ),
                       ),
                     );
