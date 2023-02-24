@@ -1,10 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:confirm_dialog/confirm_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'global.dart';
 
@@ -14,6 +19,7 @@ class Task {
   final String subTitle;
   final bool alarmFlag;
   final int taskType;
+  final String notifyID;
 
   const Task({
     required this.id,
@@ -21,6 +27,7 @@ class Task {
     required this.subTitle,
     required this.alarmFlag,
     required this.taskType,
+    required this.notifyID,
   });
 
   factory Task.fromJson(Map<String, dynamic> json) {
@@ -39,12 +46,18 @@ class Task {
       taskType = json['vo_task_type'];
     }
 
+    var notifyID = '';
+    if (json.containsKey('notify_id')) {
+      notifyID = json['notify_id'];
+    }
+
     return Task(
       id: json['id'],
       title: json['value'],
       subTitle: subTitle,
       alarmFlag: alarmFlag,
       taskType: taskType,
+      notifyID: notifyID,
     );
   }
 }
@@ -56,11 +69,17 @@ class TasksWidget extends StatefulWidget {
   State<TasksWidget> createState() => _TaskWidgetState();
 }
 
+var refreshCounterMax = 12.0;
+
 class _TaskWidgetState extends State<TasksWidget> {
   late Future<List<Task>> futureAlbum;
   Timer? _timer;
-  int refreshCounter = 12;
+  double refreshCounter = refreshCounterMax;
   DateTime dateTime = DateTime.now();
+  late FlutterTts flutterTts;
+  String notifyID = '';
+
+  bool get isAndroid => !kIsWeb && Platform.isAndroid;
 
   Future<List<Task>> fetchTasks() async {
     final response = await http.get(
@@ -71,7 +90,7 @@ class _TaskWidgetState extends State<TasksWidget> {
     );
 
     setState(() {
-      refreshCounter = 10;
+      refreshCounter = refreshCounterMax;
     });
 
     if (response.statusCode == 200) {
@@ -81,7 +100,26 @@ class _TaskWidgetState extends State<TasksWidget> {
         });
       }
       List responseJson = json.decode(response.body);
-      return responseJson.map((m) => Task.fromJson(m)).toList();
+      var l = responseJson.map((m) => Task.fromJson(m)).toList();
+
+      for (var element in l) {
+        if (element.notifyID == '') {
+          continue;
+        }
+
+        SharedPreferences.getInstance().then((sp) {
+          var k = 'notifyID_${element.id}';
+          if (!sp.containsKey(k) || sp.getString(k) != element.notifyID) {
+            if (mounted) {
+              _speak(element.title).then((value) => null);
+            }
+
+            sp.setString(k, element.notifyID);
+          }
+        });
+      }
+
+      return l;
     } else {
       // If the server did not return a 200 OK response,
       // then throw an exception.
@@ -92,13 +130,38 @@ class _TaskWidgetState extends State<TasksWidget> {
   @override
   void initState() {
     super.initState();
+    initTts();
+
     futureAlbum = fetchTasks();
+  }
+
+  Future<void> initTts() async {
+    flutterTts = FlutterTts();
+
+    if (isAndroid) {
+      await flutterTts.getDefaultEngine;
+      await flutterTts.getDefaultVoice;
+    }
+
+    flutterTts.setErrorHandler((msg) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg), duration: const Duration(seconds: 10)),
+      );
+    });
   }
 
   @override
   void dispose() {
     stopRefrsh();
+    flutterTts.stop();
     super.dispose();
+  }
+
+  Future<void> _speak(String text) async {
+    await flutterTts.setVolume(1);
+    await flutterTts.setSpeechRate(0.5);
+    await flutterTts.setPitch(1.0);
+    await flutterTts.speak(text);
   }
 
   void startRefreshIfNoTimer() {
@@ -118,7 +181,7 @@ class _TaskWidgetState extends State<TasksWidget> {
         () {
           refreshCounter--;
           if (refreshCounter <= 0) {
-            refreshCounter = 12;
+            refreshCounter = refreshCounterMax;
 
             futureAlbum = fetchTasks();
           }
@@ -157,7 +220,7 @@ class _TaskWidgetState extends State<TasksWidget> {
         child: Column(
           children: [
             LinearProgressIndicator(
-              value: refreshCounter / 12.0,
+              value: refreshCounter / refreshCounterMax,
               color: Colors.red,
             ),
             Expanded(
@@ -233,10 +296,12 @@ class _TaskWidgetState extends State<TasksWidget> {
                             subtitle: Row(
                               children: [
                                 const SizedBox(width: 30),
-                                Text(
-                                  snapshot.data![index].subTitle,
-                                  style: const TextStyle(
-                                    color: Colors.grey,
+                                Expanded(
+                                  child: Text(
+                                    snapshot.data![index].subTitle,
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                    ),
                                   ),
                                 ),
                               ],
