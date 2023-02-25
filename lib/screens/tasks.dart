@@ -206,13 +206,25 @@ class _TaskWidgetState extends State<TasksWidget> {
             const SizedBox(
               width: 4,
             ),
-            Text(
-              dateTime.toString().substring(0, 19),
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.black,
+            Expanded(
+              child: Text(
+                dateTime.toString().substring(0, 19),
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.black,
+                ),
               ),
             ),
+            IconButton(
+              icon: const Icon(
+                Icons.speaker,
+                color: Colors.green,
+              ),
+              onPressed: () {
+                _speak('当前时间为:${DateTime.now().toString().substring(0, 19)}');
+              },
+              tooltip: '播报',
+            )
           ],
         ),
       ),
