@@ -249,6 +249,7 @@ class _TaskWidgetState extends State<TasksWidget> {
                         return ListView.separated(
                           itemCount: snapshot.data!.length,
                           itemBuilder: (context, index) => ListTile(
+                            onTap: () => {},
                             iconColor: Colors.blue,
                             textColor: snapshot.data![index].alarmFlag
                                 ? Colors.red
