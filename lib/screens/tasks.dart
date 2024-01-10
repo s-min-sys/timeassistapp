@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeassistapp/components/alert.dart';
 import 'package:timeassistapp/components/netutils.dart';
+import 'package:timeassistapp/screens/alarm_add.dart';
 
 class Task {
   final String id;
@@ -63,7 +64,7 @@ class TasksWidget extends StatefulWidget {
   State<TasksWidget> createState() => _TaskWidgetState();
 }
 
-var refreshCounterMax = 12.0;
+var refreshCounterMax = 1200.0;
 
 class _TaskWidgetState extends State<TasksWidget> {
   List<Task> activatedTasks = [];
@@ -74,8 +75,9 @@ class _TaskWidgetState extends State<TasksWidget> {
 
   bool get isAndroid => !kIsWeb && Platform.isAndroid;
 
-  fetchTasks() async {
-    NetUtils.requestHttp('/tasks', method: NetUtils.getMethod, onSuccess: (data) {
+  refreshTasks() async {
+    NetUtils.requestHttp('/tasks', method: NetUtils.getMethod,
+        onSuccess: (data) {
       if (mounted) {
         setState(() {
           dateTime = DateTime.now();
@@ -116,7 +118,7 @@ class _TaskWidgetState extends State<TasksWidget> {
   void initState() {
     super.initState();
 
-    fetchTasks();
+    refreshTasks();
     startRefreshIfNoTimer();
   }
 
@@ -145,7 +147,7 @@ class _TaskWidgetState extends State<TasksWidget> {
           if (refreshCounter <= 0) {
             refreshCounter = refreshCounterMax;
 
-            fetchTasks();
+            refreshTasks();
           }
         },
       ),
@@ -179,11 +181,26 @@ class _TaskWidgetState extends State<TasksWidget> {
             ),
             IconButton(
               icon: const Icon(
-                Icons.speaker,
+                Icons.add_alarm,
                 color: Colors.green,
               ),
-              onPressed: () {},
-              tooltip: '播报',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AlarmAdd()),
+                );
+              },
+              tooltip: '新增',
+            ),
+            IconButton(
+              icon: const Icon(
+                Icons.refresh_outlined,
+                color: Colors.green,
+              ),
+              onPressed: () {
+                refreshTasks();
+              },
+              tooltip: '刷新',
             )
           ],
         ),
@@ -205,15 +222,19 @@ class _TaskWidgetState extends State<TasksWidget> {
                     itemBuilder: (context, index) => ListTile(
                       onTap: () => {},
                       iconColor: Colors.blue,
-                      textColor: activatedTasks[index].alarmFlag ? Colors.red : Colors.black,
+                      textColor: activatedTasks[index].alarmFlag
+                          ? Colors.red
+                          : Colors.black,
                       trailing: IconButton(
                         icon: const Icon(
                           Icons.done_all_outlined,
                           color: Colors.green,
                         ),
                         onPressed: () async {
-                          NetUtils.requestHttp('/tasks/${activatedTasks[index].id}/done', method: NetUtils.postMethod, onFinally: () {
-                            fetchTasks();
+                          NetUtils.requestHttp(
+                              '/tasks/${activatedTasks[index].id}/done',
+                              method: NetUtils.postMethod, onFinally: () {
+                            refreshTasks();
                           });
                         },
                         tooltip: 'done',
@@ -272,7 +293,7 @@ class _TaskWidgetState extends State<TasksWidget> {
 
   Future<void> _onRefresh() async {
     return Future.delayed(const Duration(microseconds: 100), () {
-      fetchTasks();
+      refreshTasks();
     });
   }
 }

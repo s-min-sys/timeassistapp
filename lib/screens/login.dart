@@ -62,7 +62,8 @@ class _LoginState extends State<Login> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  fetchTasks(context, userNameController.text, passwordController.text);
+                  fetchTasks(context, userNameController.text,
+                      passwordController.text);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.yellow,
@@ -77,11 +78,14 @@ class _LoginState extends State<Login> {
   }
 }
 
-Future<void> explainResponse(BuildContext context, http.Response response, String token) async {
+Future<void> explainResponse(
+    BuildContext context, http.Response response, String token) async {
   if (response.statusCode == 200) {
     Global.token = token;
     SharedPreferences.getInstance().then((sp) => sp.setString('token', token));
-    Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const MainWidget()), (route) => false);
+    Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const MainWidget()),
+        (route) => false);
   } else {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(response.statusCode.toString())),
@@ -96,6 +100,8 @@ void fetchTasks(BuildContext context, String user, String pass) {
 
 void fetchTasksByToken(BuildContext context) {
   NetUtils.requestHttp('/tasks', method: NetUtils.getMethod, onSuccess: (data) {
-    Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const MainWidget()), (route) => false);
+    Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const MainWidget()),
+        (route) => false);
   }, onError: (error) {});
 }
