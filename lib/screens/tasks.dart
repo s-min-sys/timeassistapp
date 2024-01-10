@@ -208,7 +208,7 @@ class _TaskWidgetState extends State<TasksWidget> {
                       textColor: activatedTasks[index].alarmFlag ? Colors.red : Colors.black,
                       trailing: IconButton(
                         icon: const Icon(
-                          Icons.reply,
+                          Icons.done_all_outlined,
                           color: Colors.green,
                         ),
                         onPressed: () async {
