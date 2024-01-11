@@ -1,7 +1,11 @@
 import 'dart:developer';
 
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pickers/pickers.dart';
+import 'package:timeassistapp/components/alert.dart';
+import 'package:timeassistapp/components/netutils.dart';
+import 'package:timeassistapp/screens/model.dart';
 
 enum AlarmType {
   once,
@@ -13,6 +17,38 @@ enum AlarmType {
   recycleMinute
 }
 
+int alarmType2Submit(AlarmType type) {
+  if (type == AlarmType.once) {
+    return 1;
+  }
+
+  if (type == AlarmType.recycleYear) {
+    return 2;
+  }
+
+  if (type == AlarmType.recycleMonth) {
+    return 3;
+  }
+
+  if (type == AlarmType.recycleWeek) {
+    return 4;
+  }
+
+  if (type == AlarmType.recycleDay) {
+    return 5;
+  }
+
+  if (type == AlarmType.recycleHour) {
+    return 6;
+  }
+
+  if (type == AlarmType.recycleMinute) {
+    return 7;
+  }
+
+  return 0;
+}
+
 class AlarmAdd extends StatefulWidget {
   const AlarmAdd({super.key});
 
@@ -21,6 +57,7 @@ class AlarmAdd extends StatefulWidget {
 }
 
 class _AlarmAddState extends State<AlarmAdd> {
+  final years = [for (var i = 2024; i < 2024 + 10; i++) i];
   final months = [
     '一月',
     '二月',
@@ -82,10 +119,92 @@ class _AlarmAddState extends State<AlarmAdd> {
     '廿九',
     '三十'
   ];
-  final weekDays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+  final weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
   final hours = List.generate(24, (index) => (index)).toList();
   final minutes = List.generate(60, (index) => (index)).toList();
   final seconds = List.generate(60, (index) => (index)).toList();
+  final List<AlarmTypeModel> alarmTypeModels = [
+    AlarmTypeModel(typeS: '单次', type: AlarmType.once),
+    AlarmTypeModel(typeS: '年循环', type: AlarmType.recycleYear),
+    AlarmTypeModel(typeS: '月循环', type: AlarmType.recycleMonth),
+    AlarmTypeModel(typeS: '周循环', type: AlarmType.recycleWeek),
+    AlarmTypeModel(typeS: '天循环', type: AlarmType.recycleDay),
+    AlarmTypeModel(typeS: '时循环', type: AlarmType.recycleHour),
+    AlarmTypeModel(typeS: '分循环', type: AlarmType.recycleMinute),
+  ];
+  AlarmTypeModel alarmTypeModel = AlarmTypeModel.empty();
+  bool lunarFlag = false;
+  String selectedDateValue = '';
+
+  final alarmTextController = TextEditingController();
+  final alarmDateValueController = TextEditingController();
+  final alarmEarlyShowMinutesController = TextEditingController();
+
+  void updateDateValue(List<dynamic> ps, List<int> positions) {
+    log('$ps - $positions');
+
+    final alarmType = alarmTypeModel.type;
+
+    String v = '';
+
+    if (alarmType == AlarmType.once ||
+        alarmType == AlarmType.recycleYear ||
+        alarmType == AlarmType.recycleMonth) {
+      v += lunarFlag ? 'L' : 'S';
+    }
+
+    int idx = 0;
+    if (alarmType == AlarmType.once) {
+      v += years[positions[idx++]].toString().padLeft(4, '0');
+    }
+
+    if (alarmType == AlarmType.once || alarmType == AlarmType.recycleYear) {
+      v += (positions[idx++] + 1).toString().padLeft(2, '0');
+    }
+
+    if (alarmType == AlarmType.once ||
+        alarmType == AlarmType.recycleYear ||
+        alarmType == AlarmType.recycleMonth) {
+      v += (positions[idx++] + 1).toString().padLeft(2, '0');
+    }
+
+    if (alarmType == AlarmType.recycleWeek) {
+      v += positions[idx++].toString().padLeft(2, '0');
+    }
+
+    if (alarmType == AlarmType.once ||
+        alarmType == AlarmType.recycleYear ||
+        alarmType == AlarmType.recycleMonth ||
+        alarmType == AlarmType.recycleWeek ||
+        alarmType == AlarmType.recycleDay) {
+      v += positions[idx++].toString().padLeft(2, '0');
+    }
+
+    if (alarmType == AlarmType.once ||
+        alarmType == AlarmType.recycleYear ||
+        alarmType == AlarmType.recycleMonth ||
+        alarmType == AlarmType.recycleWeek ||
+        alarmType == AlarmType.recycleDay ||
+        alarmType == AlarmType.recycleHour) {
+      v += positions[idx++].toString().padLeft(2, '0');
+    }
+
+    if (alarmType == AlarmType.once ||
+        alarmType == AlarmType.recycleYear ||
+        alarmType == AlarmType.recycleMonth ||
+        alarmType == AlarmType.recycleWeek ||
+        alarmType == AlarmType.recycleDay ||
+        alarmType == AlarmType.recycleHour ||
+        alarmType == AlarmType.recycleMinute) {
+      v += positions[idx++].toString().padLeft(2, '0');
+    }
+
+    alarmDateValueController.text = v;
+
+    setState(() {
+      selectedDateValue = v;
+    });
+  }
 
   void showSelector(AlarmType type, bool lunarFlag) {
     List<String> suffix = [];
@@ -102,7 +221,7 @@ class _AlarmAddState extends State<AlarmAdd> {
         suffix.add('');
       } else {
         data.add(months);
-        suffix.add('月');
+        suffix.add('');
       }
     }
 
@@ -114,7 +233,7 @@ class _AlarmAddState extends State<AlarmAdd> {
         suffix.add('');
       } else {
         data.add(days);
-        suffix.add('');
+        suffix.add('号');
       }
     }
 
@@ -158,25 +277,145 @@ class _AlarmAddState extends State<AlarmAdd> {
       data: data,
       suffix: suffix,
       onConfirm: (p, position) {
-        log('$p - $position');
+        updateDateValue(p, position);
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    if (alarmTypeModel.typeS == '') {
+      alarmTypeModel = alarmTypeModels.first;
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('组'),
+        title: const Text('添加闹钟'),
       ),
-      body: Column(children: [
-        ElevatedButton(
-            onPressed: () {
-              showSelector(AlarmType.recycleWeek, true);
-            },
-            child: Text('add'))
-      ]),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(children: [
+          Row(children: [
+            Expanded(
+              child: DropdownSearch<AlarmTypeModel>(
+                items: alarmTypeModels,
+                selectedItem: alarmTypeModel,
+                onChanged: (AlarmTypeModel? data) => setState(() {
+                  if (data != null) {
+                    alarmTypeModel = data;
+                    int earlyShowMinutes = 0;
+
+                    if (alarmTypeModel.type == AlarmType.recycleYear) {
+                      earlyShowMinutes = 60 * 24 * 30;
+                    } else if (alarmTypeModel.type == AlarmType.recycleMonth) {
+                      earlyShowMinutes = 60 * 24;
+                    } else if (alarmTypeModel.type == AlarmType.recycleWeek) {
+                      earlyShowMinutes = 60 * 24;
+                    } else if (alarmTypeModel.type == AlarmType.recycleDay) {
+                      earlyShowMinutes = 60;
+                    } else if (alarmTypeModel.type == AlarmType.recycleHour) {
+                      earlyShowMinutes = 10;
+                    } else if (alarmTypeModel.type == AlarmType.recycleMinute) {
+                      earlyShowMinutes = 1;
+                    } else {
+                      earlyShowMinutes = 0;
+                    }
+
+                    alarmEarlyShowMinutesController.text =
+                        earlyShowMinutes.toString();
+                  }
+                }),
+                dropdownDecoratorProps: const DropDownDecoratorProps(
+                  dropdownSearchDecoration:
+                      InputDecoration(labelText: "Alarm类型"),
+                ),
+              ),
+            ),
+            const Text('阴历'),
+            Switch(
+              value: lunarFlag,
+              onChanged: (bool value) {
+                setState(() {
+                  lunarFlag = value;
+                });
+              },
+            ),
+          ]),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12.0),
+            child: TextField(
+              decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: '闹钟内容',
+                  hintText: '输入闹钟内容'),
+              controller: alarmTextController,
+            ),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12.0),
+                  child: TextField(
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: '闹钟时间',
+                        hintText: '选择闹钟时间'),
+                    controller: alarmDateValueController,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              SizedBox(
+                height: 50,
+                child: ElevatedButton(
+                    onPressed: () {
+                      showSelector(alarmTypeModel.type, lunarFlag);
+                    },
+                    child: const Text('选择')),
+              )
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12.0),
+            child: TextField(
+              decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: '提前出现(分钟)',
+                  hintText: '输入闹钟提前出现的分钟'),
+              controller: alarmEarlyShowMinutesController,
+            ),
+          ),
+          Row(
+            children: [
+              ElevatedButton.icon(
+                  onPressed: () => {
+                        NetUtils.requestHttp('/add/alarm',
+                            method: NetUtils.postMethod,
+                            data: {
+                              'a_type': alarmType2Submit(alarmTypeModel.type),
+                              'text': alarmTextController.text,
+                              'value': alarmDateValueController.text,
+                              'early_show_minute': int.tryParse(
+                                      alarmEarlyShowMinutesController.text) ??
+                                  0,
+                            },
+                            onSuccess: (resp) => {
+                                  AlertUtils.alertDialog(
+                                      context: context, content: '添加闹钟成功')
+                                },
+                            onError: (error) => {
+                                  AlertUtils.alertDialog(
+                                      context: context, content: error)
+                                })
+                      },
+                  icon: const Icon(Icons.add_alarm),
+                  label: const Text('添加闹钟'))
+            ],
+          )
+        ]),
+      ),
     );
   }
 }

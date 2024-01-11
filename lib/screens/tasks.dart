@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io' show Platform;
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:flutter/material.dart';
@@ -64,7 +65,7 @@ class TasksWidget extends StatefulWidget {
   State<TasksWidget> createState() => _TaskWidgetState();
 }
 
-var refreshCounterMax = 1200.0;
+var refreshCounterMax = 120.0;
 
 class _TaskWidgetState extends State<TasksWidget> {
   List<Task> activatedTasks = [];
@@ -219,60 +220,111 @@ class _TaskWidgetState extends State<TasksWidget> {
                   onRefresh: _onRefresh,
                   child: ListView.separated(
                     itemCount: activatedTasks.length,
-                    itemBuilder: (context, index) => ListTile(
-                      onTap: () => {},
-                      iconColor: Colors.blue,
-                      textColor: activatedTasks[index].alarmFlag
-                          ? Colors.red
-                          : Colors.black,
-                      trailing: IconButton(
-                        icon: const Icon(
-                          Icons.done_all_outlined,
-                          color: Colors.green,
+                    itemBuilder: (context, index) => Dismissible(
+                      key: Key(activatedTasks[index].id),
+                      background: Container(
+                          color: Colors.red,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(right: 16),
+                                child: DefaultTextStyle(
+                                  style: const TextStyle(
+                                    fontSize: 20.0,
+                                  ),
+                                  child: AnimatedTextKit(
+                                    animatedTexts: [
+                                      WavyAnimatedText('左滑彻底删除该闹钟'),
+                                    ],
+                                    isRepeatingAnimation: true,
+                                  ),
+                                ),
+                              )
+                            ],
+                          )),
+                      confirmDismiss: (DismissDirection direction) async {
+                        if (direction != DismissDirection.endToStart) {
+                          return Future(() => false);
+                        }
+                        return await AlertUtils.alertDialog(
+                            context: context, content: '确定要彻底删除这个闹钟么？');
+                      },
+                      onDismissed: (direction) {
+                        final title = activatedTasks[index].title;
+                        NetUtils.requestHttp('/remove/alarm',
+                            parameters: {
+                              'id': activatedTasks[index].id,
+                            },
+                            method: NetUtils.postMethod,
+                            onSuccess: (p0) => {
+                                  AlertUtils.alertDialog(
+                                      context: context,
+                                      content: '删除 [$title] 成功')
+                                },
+                            onError: (error) => {
+                                  AlertUtils.alertDialog(
+                                      context: context,
+                                      content: '删除 [$title] 失败 $error')
+                                });
+                        activatedTasks.removeAt(index);
+                        setState(() {});
+                      },
+                      child: ListTile(
+                        onTap: () => {},
+                        iconColor: Colors.blue,
+                        textColor: activatedTasks[index].alarmFlag
+                            ? Colors.red
+                            : Colors.black,
+                        trailing: IconButton(
+                          icon: const Icon(
+                            Icons.done_all_outlined,
+                            color: Colors.green,
+                          ),
+                          onPressed: () async {
+                            NetUtils.requestHttp(
+                                '/tasks/${activatedTasks[index].id}/done',
+                                method: NetUtils.postMethod, onFinally: () {
+                              refreshTasks();
+                            });
+                          },
+                          tooltip: 'done',
                         ),
-                        onPressed: () async {
-                          NetUtils.requestHttp(
-                              '/tasks/${activatedTasks[index].id}/done',
-                              method: NetUtils.postMethod, onFinally: () {
-                            refreshTasks();
-                          });
-                        },
-                        tooltip: 'done',
-                      ),
-                      title: Row(
-                        children: [
-                          Visibility(
-                            visible: activatedTasks[index].taskType == 1,
-                            child: const Icon(
-                              Icons.task_alt,
-                            ),
-                          ),
-                          Visibility(
-                            visible: activatedTasks[index].taskType == 2,
-                            child: const Icon(
-                              Icons.alarm,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              activatedTasks[index].title,
-                            ),
-                          ),
-                        ],
-                      ),
-                      subtitle: Row(
-                        children: [
-                          const SizedBox(width: 30),
-                          Expanded(
-                            child: Text(
-                              activatedTasks[index].subTitle,
-                              style: const TextStyle(
-                                color: Colors.grey,
+                        title: Row(
+                          children: [
+                            Visibility(
+                              visible: activatedTasks[index].taskType == 1,
+                              child: const Icon(
+                                Icons.task_alt,
                               ),
                             ),
-                          ),
-                        ],
+                            Visibility(
+                              visible: activatedTasks[index].taskType == 2,
+                              child: const Icon(
+                                Icons.alarm,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                activatedTasks[index].title,
+                              ),
+                            ),
+                          ],
+                        ),
+                        subtitle: Row(
+                          children: [
+                            const SizedBox(width: 30),
+                            Expanded(
+                              child: Text(
+                                activatedTasks[index].subTitle,
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     separatorBuilder: (BuildContext context, int index) {

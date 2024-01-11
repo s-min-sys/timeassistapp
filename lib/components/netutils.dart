@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:http/http.dart' as http;
@@ -16,8 +17,40 @@ class NetUtils {
   }
 
   static Uri getUri(String url, Map<String, dynamic>? parameters) {
-    String baseUrl = Global.devMode ? dotenv.env['SERVER_DOMAIN_DEV']! : dotenv.env['SERVER_DOMAIN']!;
-    return baseUrl.startsWith('https://') ? Uri.https(baseUrl.substring(baseUrl.indexOf("://") + 3), url, parameters) : Uri.http(baseUrl.substring(baseUrl.indexOf("://") + 3), url, parameters);
+    Map<String, dynamic> allParameters = {};
+    if (parameters != null && parameters.isNotEmpty) {
+      allParameters.addAll(parameters);
+    }
+
+    final splitted = url.split('?');
+    if (splitted.length == 2) {
+      url = splitted[0];
+      final queries = splitted[1].split('&');
+      for (int i = 0; i < queries.length; i++) {
+        final qs = queries[i].split('=');
+        if (qs.length == 2) {
+          allParameters[qs[0]] = qs[1];
+        }
+      }
+    }
+
+    if (allParameters.isNotEmpty) {
+      parameters = allParameters;
+    } else {
+      parameters = null;
+    }
+
+    String baseUrl = Global.devMode
+        ? dotenv.env['SERVER_DOMAIN_DEV']!
+        : dotenv.env['SERVER_DOMAIN']!;
+    var s = baseUrl.startsWith('https://')
+        ? Uri.https(
+            baseUrl.substring(baseUrl.indexOf("://") + 3), url, parameters)
+        : Uri.http(
+            baseUrl.substring(baseUrl.indexOf("://") + 3), url, parameters);
+
+    log(s.toString());
+    return s;
   }
 
   ///Get请求
@@ -43,7 +76,8 @@ class NetUtils {
       ).timeout(const Duration(hours: 6));
 
       if (response.statusCode == 200) {
-        Map<String, dynamic> resp = json.decode(utf8.decode(response.bodyBytes));
+        Map<String, dynamic> resp =
+            json.decode(utf8.decode(response.bodyBytes));
 
         var code = resp['code'];
         if (code < 100) {
@@ -108,7 +142,8 @@ class NetUtils {
           .timeout(const Duration(hours: 6));
 
       if (response.statusCode == 200) {
-        Map<String, dynamic> resp = json.decode(utf8.decode(response.bodyBytes));
+        Map<String, dynamic> resp =
+            json.decode(utf8.decode(response.bodyBytes));
 
         var code = resp['code'];
         if (code < 100) {
