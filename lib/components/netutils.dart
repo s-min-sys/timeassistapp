@@ -6,15 +6,9 @@ import 'package:http/http.dart' as http;
 import 'package:timeassistapp/components/global.dart';
 
 class NetUtils {
-  static String? token;
-
   /// http request methods
   static const String getMethod = 'get';
   static const String postMethod = 'post';
-
-  static reset(String? newToken) {
-    token = newToken;
-  }
 
   static Uri getUri(String url, Map<String, dynamic>? parameters) {
     Map<String, dynamic> allParameters = {};
@@ -71,7 +65,7 @@ class NetUtils {
         headers: {
           'Accept': 'application/json,*/*',
           'Content-Type': 'application/json',
-          'token': token ?? "",
+          'Authorization': 'Basic ${Global.token}',
         },
       ).timeout(const Duration(hours: 6));
 
@@ -136,7 +130,7 @@ class NetUtils {
               headers: {
                 'Accept': 'application/json,*/*',
                 'Content-Type': 'application/json',
-                'token': token ?? "",
+                'Authorization': 'Basic ${Global.token}',
               },
               body: jsonEncode(data))
           .timeout(const Duration(hours: 6));

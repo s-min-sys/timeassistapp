@@ -397,6 +397,8 @@ class _AlarmAddState extends State<AlarmAdd> {
                               'a_type': alarmType2Submit(alarmTypeModel.type),
                               'text': alarmTextController.text,
                               'value': alarmDateValueController.text,
+                              'timeZone':
+                                  DateTime.now().timeZoneOffset.inMinutes ~/ 60,
                               'early_show_minute': int.tryParse(
                                       alarmEarlyShowMinutesController.text) ??
                                   0,
