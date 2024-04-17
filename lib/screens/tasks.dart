@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeassistapp/components/alert.dart';
 import 'package:timeassistapp/components/netutils.dart';
 import 'package:timeassistapp/screens/alarm_add.dart';
+import 'package:timeassistapp/screens/alarms_detail.dart';
 
 class Task {
   final String id;
@@ -192,6 +193,19 @@ class _TaskWidgetState extends State<TasksWidget> {
                 );
               },
               tooltip: '新增',
+            ),
+            IconButton(
+              icon: const Icon(
+                Icons.details,
+                color: Colors.green,
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AlarmDetail()),
+                );
+              },
+              tooltip: '当前闹钟详情',
             ),
             IconButton(
               icon: const Icon(

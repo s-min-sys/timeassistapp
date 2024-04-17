@@ -11,3 +11,9 @@ flutter pub add flutter_dotenv
 ```bash
 dart format .
 ```
+
+# build android apk
+
+```bash
+flutter build apk --release
+``

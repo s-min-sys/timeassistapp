@@ -34,7 +34,7 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
+      body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.all(80.0),
           child: Column(
@@ -69,7 +69,10 @@ class _LoginState extends State<Login> {
                   backgroundColor: Colors.yellow,
                 ),
                 child: const Text('ENTER'),
-              )
+              ),
+              const SizedBox(
+                height: 130,
+              ),
             ],
           ),
         ),
