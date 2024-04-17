@@ -35,7 +35,7 @@ class _AlarmAddState extends State<AlarmDetail> {
   }
 
   String alarmDetailTitle(AlarmDetailModel detail) {
-    return '${detail.text} [${detail.value}] ${detail.aValue}';
+    return '${detail.text} [${detail.value}] ${detail.aValue}  ${detail.leftTime}';
   }
 
   List<Widget> subTitlePiece(String text1, text2) {
@@ -105,17 +105,26 @@ class _AlarmAddState extends State<AlarmDetail> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: ListView.separated(
-          itemCount: alarms.length,
-          itemBuilder: (context, index) => ListTile(
-            title: Text(alarmDetailTitle(alarms[index])),
-            subtitle: alarmDetailSubTitle(alarms[index]),
+        child: RefreshIndicator(
+          onRefresh: refresh,
+          child: ListView.separated(
+            itemCount: alarms.length,
+            itemBuilder: (context, index) => ListTile(
+              title: Text(alarmDetailTitle(alarms[index])),
+              subtitle: alarmDetailSubTitle(alarms[index]),
+            ),
+            separatorBuilder: (BuildContext context, int index) {
+              return const Divider();
+            },
           ),
-          separatorBuilder: (BuildContext context, int index) {
-            return const Divider();
-          },
         ),
       ),
     );
+  }
+
+  Future<void> refresh() async {
+    return Future.delayed(const Duration(microseconds: 10), () {
+      refreshList();
+    });
   }
 }

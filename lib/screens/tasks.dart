@@ -17,6 +17,7 @@ class Task {
   final bool alarmFlag;
   final int taskType;
   final String notifyID;
+  final String leftTime;
 
   const Task({
     required this.id,
@@ -25,6 +26,7 @@ class Task {
     required this.alarmFlag,
     required this.taskType,
     required this.notifyID,
+    required this.leftTime,
   });
 
   factory Task.fromJson(Map<String, dynamic> json) {
@@ -48,6 +50,11 @@ class Task {
       notifyID = json['notify_id'];
     }
 
+    var leftTime = ''; // left_time_s
+    if (json.containsKey('left_time_s')) {
+      leftTime = json['left_time_s'];
+    }
+
     return Task(
       id: json['id'],
       title: json['value'],
@@ -55,6 +62,7 @@ class Task {
       alarmFlag: alarmFlag,
       taskType: taskType,
       notifyID: notifyID,
+      leftTime: leftTime,
     );
   }
 }
@@ -289,7 +297,7 @@ class _TaskWidgetState extends State<TasksWidget> {
                         iconColor: Colors.blue,
                         textColor: activatedTasks[index].alarmFlag
                             ? Colors.red
-                            : Colors.black,
+                            : Colors.green,
                         trailing: IconButton(
                           icon: const Icon(
                             Icons.done_all_outlined,
@@ -320,8 +328,24 @@ class _TaskWidgetState extends State<TasksWidget> {
                             ),
                             const SizedBox(width: 6),
                             Expanded(
-                              child: Text(
-                                activatedTasks[index].title,
+                              child: Row(
+                                children: [
+                                  Text(
+                                    activatedTasks[index].title,
+                                  ),
+                                  const Text('       '),
+                                  Visibility(
+                                    visible: !activatedTasks[index].alarmFlag,
+                                    child: Text(
+                                      activatedTasks[index].leftTime,
+                                      style: const TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 12,
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],

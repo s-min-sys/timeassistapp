@@ -38,6 +38,7 @@ class AlarmDetailModel {
   final String text;
   final String value;
   final String aValue;
+  final String leftTime;
 
   AlarmDetailModel({
     required this.id,
@@ -47,6 +48,7 @@ class AlarmDetailModel {
     required this.text,
     required this.value,
     required this.aValue,
+    required this.leftTime,
   });
 
   factory AlarmDetailModel.fromJson(Map<String, dynamic> json) {
@@ -58,6 +60,7 @@ class AlarmDetailModel {
       text: json['text'],
       value: json['value'],
       aValue: json['a_value'],
+      leftTime: json['left_time'],
     );
   }
 
@@ -69,6 +72,7 @@ class AlarmDetailModel {
         expireAtS: '',
         text: '',
         value: '',
-        aValue: '');
+        aValue: '',
+        leftTime: '');
   }
 }
