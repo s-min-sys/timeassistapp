@@ -7,7 +7,7 @@ import 'package:timeassistapp/components/alert.dart';
 import 'package:timeassistapp/components/netutils.dart';
 import 'package:timeassistapp/screens/model.dart';
 
-enum AlarmType {
+enum TimeType {
   once,
   recycleYear,
   recycleMonth,
@@ -17,32 +17,32 @@ enum AlarmType {
   recycleMinute
 }
 
-int alarmType2Submit(AlarmType type) {
-  if (type == AlarmType.once) {
+int timeType2Submit(TimeType type) {
+  if (type == TimeType.once) {
     return 1;
   }
 
-  if (type == AlarmType.recycleYear) {
+  if (type == TimeType.recycleYear) {
     return 2;
   }
 
-  if (type == AlarmType.recycleMonth) {
+  if (type == TimeType.recycleMonth) {
     return 3;
   }
 
-  if (type == AlarmType.recycleWeek) {
+  if (type == TimeType.recycleWeek) {
     return 4;
   }
 
-  if (type == AlarmType.recycleDay) {
+  if (type == TimeType.recycleDay) {
     return 5;
   }
 
-  if (type == AlarmType.recycleHour) {
+  if (type == TimeType.recycleHour) {
     return 6;
   }
 
-  if (type == AlarmType.recycleMinute) {
+  if (type == TimeType.recycleMinute) {
     return 7;
   }
 
@@ -124,13 +124,13 @@ class _AlarmAddState extends State<AlarmAdd> {
   final minutes = List.generate(60, (index) => (index)).toList();
   final seconds = List.generate(60, (index) => (index)).toList();
   final List<AlarmTypeModel> alarmTypeModels = [
-    AlarmTypeModel(typeS: '单次', type: AlarmType.once),
-    AlarmTypeModel(typeS: '年循环', type: AlarmType.recycleYear),
-    AlarmTypeModel(typeS: '月循环', type: AlarmType.recycleMonth),
-    AlarmTypeModel(typeS: '周循环', type: AlarmType.recycleWeek),
-    AlarmTypeModel(typeS: '天循环', type: AlarmType.recycleDay),
-    AlarmTypeModel(typeS: '时循环', type: AlarmType.recycleHour),
-    AlarmTypeModel(typeS: '分循环', type: AlarmType.recycleMinute),
+    AlarmTypeModel(typeS: '单次', type: TimeType.once),
+    AlarmTypeModel(typeS: '年循环', type: TimeType.recycleYear),
+    AlarmTypeModel(typeS: '月循环', type: TimeType.recycleMonth),
+    AlarmTypeModel(typeS: '周循环', type: TimeType.recycleWeek),
+    AlarmTypeModel(typeS: '天循环', type: TimeType.recycleDay),
+    AlarmTypeModel(typeS: '时循环', type: TimeType.recycleHour),
+    AlarmTypeModel(typeS: '分循环', type: TimeType.recycleMinute),
   ];
   AlarmTypeModel alarmTypeModel = AlarmTypeModel.empty();
   bool lunarFlag = false;
@@ -147,55 +147,55 @@ class _AlarmAddState extends State<AlarmAdd> {
 
     String v = '';
 
-    if (alarmType == AlarmType.once ||
-        alarmType == AlarmType.recycleYear ||
-        alarmType == AlarmType.recycleMonth) {
+    if (alarmType == TimeType.once ||
+        alarmType == TimeType.recycleYear ||
+        alarmType == TimeType.recycleMonth) {
       v += lunarFlag ? 'L' : 'S';
     }
 
     int idx = 0;
-    if (alarmType == AlarmType.once) {
+    if (alarmType == TimeType.once) {
       v += years[positions[idx++]].toString().padLeft(4, '0');
     }
 
-    if (alarmType == AlarmType.once || alarmType == AlarmType.recycleYear) {
+    if (alarmType == TimeType.once || alarmType == TimeType.recycleYear) {
       v += (positions[idx++] + 1).toString().padLeft(2, '0');
     }
 
-    if (alarmType == AlarmType.once ||
-        alarmType == AlarmType.recycleYear ||
-        alarmType == AlarmType.recycleMonth) {
+    if (alarmType == TimeType.once ||
+        alarmType == TimeType.recycleYear ||
+        alarmType == TimeType.recycleMonth) {
       v += (positions[idx++] + 1).toString().padLeft(2, '0');
     }
 
-    if (alarmType == AlarmType.recycleWeek) {
+    if (alarmType == TimeType.recycleWeek) {
       v += positions[idx++].toString().padLeft(2, '0');
     }
 
-    if (alarmType == AlarmType.once ||
-        alarmType == AlarmType.recycleYear ||
-        alarmType == AlarmType.recycleMonth ||
-        alarmType == AlarmType.recycleWeek ||
-        alarmType == AlarmType.recycleDay) {
+    if (alarmType == TimeType.once ||
+        alarmType == TimeType.recycleYear ||
+        alarmType == TimeType.recycleMonth ||
+        alarmType == TimeType.recycleWeek ||
+        alarmType == TimeType.recycleDay) {
       v += positions[idx++].toString().padLeft(2, '0');
     }
 
-    if (alarmType == AlarmType.once ||
-        alarmType == AlarmType.recycleYear ||
-        alarmType == AlarmType.recycleMonth ||
-        alarmType == AlarmType.recycleWeek ||
-        alarmType == AlarmType.recycleDay ||
-        alarmType == AlarmType.recycleHour) {
+    if (alarmType == TimeType.once ||
+        alarmType == TimeType.recycleYear ||
+        alarmType == TimeType.recycleMonth ||
+        alarmType == TimeType.recycleWeek ||
+        alarmType == TimeType.recycleDay ||
+        alarmType == TimeType.recycleHour) {
       v += positions[idx++].toString().padLeft(2, '0');
     }
 
-    if (alarmType == AlarmType.once ||
-        alarmType == AlarmType.recycleYear ||
-        alarmType == AlarmType.recycleMonth ||
-        alarmType == AlarmType.recycleWeek ||
-        alarmType == AlarmType.recycleDay ||
-        alarmType == AlarmType.recycleHour ||
-        alarmType == AlarmType.recycleMinute) {
+    if (alarmType == TimeType.once ||
+        alarmType == TimeType.recycleYear ||
+        alarmType == TimeType.recycleMonth ||
+        alarmType == TimeType.recycleWeek ||
+        alarmType == TimeType.recycleDay ||
+        alarmType == TimeType.recycleHour ||
+        alarmType == TimeType.recycleMinute) {
       v += positions[idx++].toString().padLeft(2, '0');
     }
 
@@ -206,16 +206,16 @@ class _AlarmAddState extends State<AlarmAdd> {
     });
   }
 
-  void showSelector(AlarmType type, bool lunarFlag) {
+  void showSelector(TimeType type, bool lunarFlag) {
     List<String> suffix = [];
     List<List> data = [];
 
-    if (type == AlarmType.once) {
+    if (type == TimeType.once) {
       data.add([for (var i = 2024; i < 2024 + 10; i++) i]);
       suffix.add('年');
     }
 
-    if (type == AlarmType.once || type == AlarmType.recycleYear) {
+    if (type == TimeType.once || type == TimeType.recycleYear) {
       if (lunarFlag) {
         data.add(monthsLunar);
         suffix.add('');
@@ -225,9 +225,9 @@ class _AlarmAddState extends State<AlarmAdd> {
       }
     }
 
-    if (type == AlarmType.once ||
-        type == AlarmType.recycleYear ||
-        type == AlarmType.recycleMonth) {
+    if (type == TimeType.once ||
+        type == TimeType.recycleYear ||
+        type == TimeType.recycleMonth) {
       if (lunarFlag) {
         data.add(daysLunar);
         suffix.add('');
@@ -237,37 +237,37 @@ class _AlarmAddState extends State<AlarmAdd> {
       }
     }
 
-    if (type == AlarmType.recycleWeek) {
+    if (type == TimeType.recycleWeek) {
       data.add(weekDays);
       suffix.add('');
     }
 
-    if (type == AlarmType.once ||
-        type == AlarmType.recycleYear ||
-        type == AlarmType.recycleMonth ||
-        type == AlarmType.recycleWeek ||
-        type == AlarmType.recycleDay) {
+    if (type == TimeType.once ||
+        type == TimeType.recycleYear ||
+        type == TimeType.recycleMonth ||
+        type == TimeType.recycleWeek ||
+        type == TimeType.recycleDay) {
       data.add(hours);
       suffix.add('时');
     }
 
-    if (type == AlarmType.once ||
-        type == AlarmType.recycleYear ||
-        type == AlarmType.recycleMonth ||
-        type == AlarmType.recycleWeek ||
-        type == AlarmType.recycleDay ||
-        type == AlarmType.recycleHour) {
+    if (type == TimeType.once ||
+        type == TimeType.recycleYear ||
+        type == TimeType.recycleMonth ||
+        type == TimeType.recycleWeek ||
+        type == TimeType.recycleDay ||
+        type == TimeType.recycleHour) {
       data.add(minutes);
       suffix.add('分');
     }
 
-    if (type == AlarmType.once ||
-        type == AlarmType.recycleYear ||
-        type == AlarmType.recycleMonth ||
-        type == AlarmType.recycleWeek ||
-        type == AlarmType.recycleDay ||
-        type == AlarmType.recycleHour ||
-        type == AlarmType.recycleMinute) {
+    if (type == TimeType.once ||
+        type == TimeType.recycleYear ||
+        type == TimeType.recycleMonth ||
+        type == TimeType.recycleWeek ||
+        type == TimeType.recycleDay ||
+        type == TimeType.recycleHour ||
+        type == TimeType.recycleMinute) {
       data.add(seconds);
       suffix.add('秒');
     }
@@ -306,17 +306,17 @@ class _AlarmAddState extends State<AlarmAdd> {
                     alarmTypeModel = data;
                     int earlyShowMinutes = 0;
 
-                    if (alarmTypeModel.type == AlarmType.recycleYear) {
+                    if (alarmTypeModel.type == TimeType.recycleYear) {
                       earlyShowMinutes = 60 * 24 * 30;
-                    } else if (alarmTypeModel.type == AlarmType.recycleMonth) {
+                    } else if (alarmTypeModel.type == TimeType.recycleMonth) {
                       earlyShowMinutes = 60 * 24;
-                    } else if (alarmTypeModel.type == AlarmType.recycleWeek) {
+                    } else if (alarmTypeModel.type == TimeType.recycleWeek) {
                       earlyShowMinutes = 60 * 24;
-                    } else if (alarmTypeModel.type == AlarmType.recycleDay) {
+                    } else if (alarmTypeModel.type == TimeType.recycleDay) {
                       earlyShowMinutes = 60;
-                    } else if (alarmTypeModel.type == AlarmType.recycleHour) {
+                    } else if (alarmTypeModel.type == TimeType.recycleHour) {
                       earlyShowMinutes = 10;
-                    } else if (alarmTypeModel.type == AlarmType.recycleMinute) {
+                    } else if (alarmTypeModel.type == TimeType.recycleMinute) {
                       earlyShowMinutes = 1;
                     } else {
                       earlyShowMinutes = 0;
@@ -394,7 +394,7 @@ class _AlarmAddState extends State<AlarmAdd> {
                         NetUtils.requestHttp('/add/alarm',
                             method: NetUtils.postMethod,
                             data: {
-                              'a_type': alarmType2Submit(alarmTypeModel.type),
+                              'a_type': timeType2Submit(alarmTypeModel.type),
                               'text': alarmTextController.text,
                               'value': alarmDateValueController.text,
                               'timeZone':

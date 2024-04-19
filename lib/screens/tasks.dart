@@ -9,6 +9,7 @@ import 'package:timeassistapp/components/alert.dart';
 import 'package:timeassistapp/components/netutils.dart';
 import 'package:timeassistapp/screens/alarm_add.dart';
 import 'package:timeassistapp/screens/alarms_detail.dart';
+import 'package:timeassistapp/screens/task_add.dart';
 
 class Task {
   final String id;
@@ -192,7 +193,6 @@ class _TaskWidgetState extends State<TasksWidget> {
             IconButton(
               icon: const Icon(
                 Icons.add_alarm,
-                color: Colors.green,
               ),
               onPressed: () {
                 Navigator.push(
@@ -200,12 +200,11 @@ class _TaskWidgetState extends State<TasksWidget> {
                   MaterialPageRoute(builder: (context) => const AlarmAdd()),
                 );
               },
-              tooltip: '新增',
+              tooltip: '新增闹钟',
             ),
             IconButton(
               icon: const Icon(
                 Icons.details,
-                color: Colors.green,
               ),
               onPressed: () {
                 Navigator.push(
@@ -217,8 +216,19 @@ class _TaskWidgetState extends State<TasksWidget> {
             ),
             IconButton(
               icon: const Icon(
+                Icons.add_task,
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const TaskAdd()),
+                );
+              },
+              tooltip: '新增任务',
+            ),
+            IconButton(
+              icon: const Icon(
                 Icons.refresh_outlined,
-                color: Colors.green,
               ),
               onPressed: () {
                 refreshTasks();
