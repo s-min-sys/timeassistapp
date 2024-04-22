@@ -3,18 +3,18 @@ import 'package:timeassistapp/components/alert.dart';
 import 'package:timeassistapp/components/netutils.dart';
 import 'package:timeassistapp/screens/model.dart';
 
-class AlarmDetail extends StatefulWidget {
-  const AlarmDetail({super.key});
+class TasksDetail extends StatefulWidget {
+  const TasksDetail({super.key});
 
   @override
-  State<AlarmDetail> createState() => _AlarmAddState();
+  State<TasksDetail> createState() => _TasksDetailState();
 }
 
-class _AlarmAddState extends State<AlarmDetail> {
+class _TasksDetailState extends State<TasksDetail> {
   List<AlarmDetailModel> alarms = [];
 
   void refreshList() {
-    NetUtils.requestHttp('/alarms/detail',
+    NetUtils.requestHttp('/task/detail',
         method: NetUtils.getMethod,
         onSuccess: (resp) => {
               setState(() {
@@ -101,7 +101,7 @@ class _AlarmAddState extends State<AlarmDetail> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('激活的闹钟详情'),
+        title: const Text('激活的任务详情'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

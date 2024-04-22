@@ -10,6 +10,7 @@ import 'package:timeassistapp/components/netutils.dart';
 import 'package:timeassistapp/screens/alarm_add.dart';
 import 'package:timeassistapp/screens/alarms_detail.dart';
 import 'package:timeassistapp/screens/task_add.dart';
+import 'package:timeassistapp/screens/tasks_detail.dart';
 
 class Task {
   final String id;
@@ -87,7 +88,7 @@ class _TaskWidgetState extends State<TasksWidget> {
   bool get isAndroid => !kIsWeb && Platform.isAndroid;
 
   refreshTasks() async {
-    NetUtils.requestHttp('/tasks', method: NetUtils.getMethod,
+    NetUtils.requestHttp('/shows', method: NetUtils.getMethod,
         onSuccess: (data) {
       if (mounted) {
         setState(() {
@@ -204,7 +205,7 @@ class _TaskWidgetState extends State<TasksWidget> {
             ),
             IconButton(
               icon: const Icon(
-                Icons.details,
+                Icons.alarm_on,
               ),
               onPressed: () {
                 Navigator.push(
@@ -212,7 +213,7 @@ class _TaskWidgetState extends State<TasksWidget> {
                   MaterialPageRoute(builder: (context) => const AlarmDetail()),
                 );
               },
-              tooltip: '当前闹钟详情',
+              tooltip: '激活的闹钟',
             ),
             IconButton(
               icon: const Icon(
@@ -225,6 +226,18 @@ class _TaskWidgetState extends State<TasksWidget> {
                 );
               },
               tooltip: '新增任务',
+            ),
+            IconButton(
+              icon: const Icon(
+                Icons.task_rounded,
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const TasksDetail()),
+                );
+              },
+              tooltip: '激活的任务',
             ),
             IconButton(
               icon: const Icon(
@@ -284,7 +297,7 @@ class _TaskWidgetState extends State<TasksWidget> {
                       },
                       onDismissed: (direction) {
                         final title = activatedTasks[index].title;
-                        NetUtils.requestHttp('/remove/alarm',
+                        NetUtils.requestHttp('/alarm/remove',
                             parameters: {
                               'id': activatedTasks[index].id,
                             },
@@ -315,7 +328,7 @@ class _TaskWidgetState extends State<TasksWidget> {
                           ),
                           onPressed: () async {
                             NetUtils.requestHttp(
-                                '/tasks/${activatedTasks[index].id}/done',
+                                '/shows/${activatedTasks[index].id}/done',
                                 method: NetUtils.postMethod, onFinally: () {
                               refreshTasks();
                             });

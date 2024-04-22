@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:timeassistapp/components/alert.dart';
 import 'package:timeassistapp/components/netutils.dart';
 import 'package:timeassistapp/screens/alarm_add.dart';
 import 'package:timeassistapp/screens/model.dart';
+import 'package:timeassistapp/screens/time_range_setter.dart';
 
 class TaskAdd extends StatefulWidget {
   const TaskAdd({super.key});
@@ -27,6 +30,8 @@ class _TaskAddState extends State<TaskAdd> {
   bool autoFlag = false;
   final textController = TextEditingController();
   final valueController = TextEditingController();
+  dynamic validTime;
+  String validTimeS = '';
 
   void addNewTask() {
     var taskText = textController.text;
@@ -51,7 +56,7 @@ class _TaskAddState extends State<TaskAdd> {
       }
     }
 
-    NetUtils.requestHttp('/add/task',
+    NetUtils.requestHttp('/task/add',
         method: NetUtils.postMethod,
         data: {
           't_type': timeType2Submit(alarmTypeModel.type),
@@ -60,6 +65,7 @@ class _TaskAddState extends State<TaskAdd> {
           'value': value,
           'time_zone': DateTime.now().timeZoneOffset.inMinutes ~/ 60,
           'auto': autoFlag,
+          'valid_time': validTime,
         },
         onSuccess: (resp) =>
             {AlertUtils.alertDialog(context: context, content: '添加任务成功')},
@@ -155,6 +161,20 @@ class _TaskAddState extends State<TaskAdd> {
                   ],
                 ),
               ),
+              Text(validTimeS),
+              ElevatedButton(
+                  onPressed: () async {
+                    validTime = await Navigator.push(
+                      context,
+                      // Create the SelectionScreen in the next step.
+                      MaterialPageRoute(
+                          builder: (context) => const TimeRangeSetter()),
+                    );
+                    setState(() {
+                      validTimeS = jsonEncode(validTime);
+                    });
+                  },
+                  child: const Text('选择时间段')),
               Row(
                 children: [
                   ElevatedButton.icon(

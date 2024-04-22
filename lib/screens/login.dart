@@ -102,7 +102,7 @@ void fetchTasks(BuildContext context, String user, String pass) {
 }
 
 void fetchTasksByToken(BuildContext context) {
-  NetUtils.requestHttp('/tasks', method: NetUtils.getMethod, onSuccess: (data) {
+  NetUtils.requestHttp('/shows', method: NetUtils.getMethod, onSuccess: (data) {
     Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => const MainWidget()),
         (route) => false);

@@ -76,3 +76,29 @@ class AlarmDetailModel {
         leftTime: '');
   }
 }
+
+class Range {
+  final int start;
+  final int end;
+
+  Range({
+    required this.start,
+    required this.end,
+  });
+}
+
+class ValidTime {
+  List<Range> validMonthsInYear = [];
+  List<Range> validWeeksInMonth = [];
+  List<Range> validDaysInMonth = [];
+  List<Range> validDaysInWeek = [];
+  List<Range> validHoursInDay = [];
+
+  reset() {
+    validMonthsInYear = [];
+    validWeeksInMonth = [];
+    validDaysInMonth = [];
+    validDaysInWeek = [];
+    validHoursInDay = [];
+  }
+}

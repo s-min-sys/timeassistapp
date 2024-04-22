@@ -391,7 +391,7 @@ class _AlarmAddState extends State<AlarmAdd> {
             children: [
               ElevatedButton.icon(
                   onPressed: () => {
-                        NetUtils.requestHttp('/add/alarm',
+                        NetUtils.requestHttp('/alarm/add',
                             method: NetUtils.postMethod,
                             data: {
                               'a_type': timeType2Submit(alarmTypeModel.type),
