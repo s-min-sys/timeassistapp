@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:dropdown_search/dropdown_search.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_pickers/pickers.dart';
 import 'package:timeassistapp/components/alert.dart';
 import 'package:timeassistapp/components/netutils.dart';
 import 'package:timeassistapp/screens/model.dart';
+import 'package:timeassistapp/screens/time_range_setter.dart';
 
 enum TimeType {
   once,
@@ -135,6 +137,8 @@ class _AlarmAddState extends State<AlarmAdd> {
   AlarmTypeModel alarmTypeModel = AlarmTypeModel.empty();
   bool lunarFlag = false;
   String selectedDateValue = '';
+  dynamic validTime;
+  String validTimeS = '';
 
   final alarmTextController = TextEditingController();
   final alarmDateValueController = TextEditingController();
@@ -387,6 +391,20 @@ class _AlarmAddState extends State<AlarmAdd> {
               controller: alarmEarlyShowMinutesController,
             ),
           ),
+          Text(validTimeS),
+          ElevatedButton(
+              onPressed: () async {
+                validTime = await Navigator.push(
+                  context,
+                  // Create the SelectionScreen in the next step.
+                  MaterialPageRoute(
+                      builder: (context) => const TimeRangeSetter()),
+                );
+                setState(() {
+                  validTimeS = jsonEncode(validTime);
+                });
+              },
+              child: const Text('选择时间段')),
           Row(
             children: [
               ElevatedButton.icon(
@@ -402,6 +420,7 @@ class _AlarmAddState extends State<AlarmAdd> {
                               'early_show_minute': int.tryParse(
                                       alarmEarlyShowMinutesController.text) ??
                                   0,
+                              'valid_time': validTime,
                             },
                             onSuccess: (resp) => {
                                   AlertUtils.alertDialog(

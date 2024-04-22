@@ -91,6 +91,8 @@ class _TimeRangeSetterState extends State<TimeRangeSetter> {
   List<dynamic> process(String s) {
     List<dynamic> d = [];
 
+    s = s.replaceAll('，', ',');
+
     for (var kv in s.split(',')) {
       kv = kv.trim();
       final kvs = kv.split('-');
