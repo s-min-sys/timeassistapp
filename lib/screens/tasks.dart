@@ -239,15 +239,6 @@ class _TaskWidgetState extends State<TasksWidget> {
               },
               tooltip: '激活的任务',
             ),
-            IconButton(
-              icon: const Icon(
-                Icons.refresh_outlined,
-              ),
-              onPressed: () {
-                refreshTasks();
-              },
-              tooltip: '刷新',
-            )
           ],
         ),
       ),
@@ -320,11 +311,11 @@ class _TaskWidgetState extends State<TasksWidget> {
                         iconColor: Colors.blue,
                         textColor: activatedTasks[index].alarmFlag
                             ? Colors.red
-                            : Colors.green,
+                            : Colors.blueGrey,
                         trailing: IconButton(
                           icon: const Icon(
                             Icons.done_all_outlined,
-                            color: Colors.green,
+                            color: Colors.red,
                           ),
                           onPressed: () async {
                             NetUtils.requestHttp(
@@ -351,24 +342,19 @@ class _TaskWidgetState extends State<TasksWidget> {
                             ),
                             const SizedBox(width: 6),
                             Expanded(
-                              child: Row(
-                                children: [
-                                  Text(
-                                    activatedTasks[index].title,
-                                  ),
-                                  const Text('       '),
-                                  Visibility(
-                                    visible: !activatedTasks[index].alarmFlag,
-                                    child: Text(
-                                      activatedTasks[index].leftTime,
-                                      style: const TextStyle(
-                                        color: Colors.red,
-                                        fontSize: 12,
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                              child: Text(
+                                activatedTasks[index].title,
+                              ),
+                            ),
+                            Visibility(
+                              visible: !activatedTasks[index].alarmFlag,
+                              child: Text(
+                                activatedTasks[index].leftTime,
+                                style: const TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 12,
+                                  fontStyle: FontStyle.italic,
+                                ),
                               ),
                             ),
                           ],
