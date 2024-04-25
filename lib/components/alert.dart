@@ -6,7 +6,7 @@ class AlertUtils {
       String title = '消息',
       okButtonText = '确定',
       cancelButtonText = '取消',
-      hideCancelButton = false,
+      hideCancelButton = true,
       required content}) async {
     if (!context.mounted) {
       return;
