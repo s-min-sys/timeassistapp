@@ -34,6 +34,26 @@ class NetUtils {
     }
 
     String baseUrl = Global.getServerURL();
+    baseUrl = baseUrl.toLowerCase();
+    if (!url.startsWith('/')) {
+      url = '/$url';
+    }
+
+    var index = baseUrl.indexOf('://');
+    if (index != -1) {
+      String s = baseUrl.substring(baseUrl.indexOf("://") + 3);
+      var index2 = s.indexOf('/');
+      if (index2 != -1) {
+        s = s.substring(index2);
+        if (s.endsWith('/')) {
+          s = s.substring(0, s.length - 1);
+        }
+
+        url = s + url;
+        baseUrl = baseUrl.substring(0, index2 + index + 3);
+      }
+    }
+
     var s = baseUrl.startsWith('https://')
         ? Uri.https(
             baseUrl.substring(baseUrl.indexOf("://") + 3), url, parameters)
