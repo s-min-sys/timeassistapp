@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:http/http.dart' as http;
 import 'package:timeassistapp/components/global.dart';
@@ -34,9 +33,7 @@ class NetUtils {
       parameters = null;
     }
 
-    String baseUrl = Global.devMode
-        ? dotenv.env['SERVER_DOMAIN_DEV']!
-        : dotenv.env['SERVER_DOMAIN']!;
+    String baseUrl = Global.getServerURL();
     var s = baseUrl.startsWith('https://')
         ? Uri.https(
             baseUrl.substring(baseUrl.indexOf("://") + 3), url, parameters)

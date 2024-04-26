@@ -11,6 +11,7 @@ import 'package:timeassistapp/screens/alarm_add.dart';
 import 'package:timeassistapp/screens/alarms_detail.dart';
 import 'package:timeassistapp/screens/task_add.dart';
 import 'package:timeassistapp/screens/tasks_detail.dart';
+import 'package:timeassistapp/components/global.dart';
 
 class Task {
   final String id;
@@ -84,6 +85,8 @@ class _TaskWidgetState extends State<TasksWidget> {
   double refreshCounter = refreshCounterMax;
   DateTime dateTime = DateTime.now();
   String notifyID = '';
+  final customServerURLController = TextEditingController();
+  bool devMode = false;
 
   bool get isAndroid => !kIsWeb && Platform.isAndroid;
 
@@ -174,6 +177,53 @@ class _TaskWidgetState extends State<TasksWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      onDrawerChanged: (bool isOpened) {
+        if (!isOpened) {
+          String u = customServerURLController.text;
+          if (u != '') {
+            Global.customServerURL = u;
+          } else {
+            Global.customServerURL = '';
+            Global.devMode = devMode;
+          }
+          refreshTasks();
+        } else {
+          String? customServerURL = Global.customServerURL;
+          if (customServerURL != null) {
+            customServerURLController.text = customServerURL;
+          } else {
+            devMode = Global.devMode;
+          }
+        }
+      },
+      drawer: Drawer(
+          child: SingleChildScrollView(
+              child: Column(
+        children: [
+          const SizedBox(height: 100),
+          ListTile(
+            title: TextField(
+              decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: '自定义服务地址',
+                  hintText: '输入自定义服务地址'),
+              controller: customServerURLController,
+            ),
+          ),
+          Visibility(
+            visible: customServerURLController.text == '',
+            child: CheckboxListTile(
+              title: const Text('预置本地服务地址'),
+              onChanged: (bool? value) {
+                setState(() {
+                  devMode = value!;
+                });
+              },
+              value: devMode,
+            ),
+          ),
+        ],
+      ))),
       appBar: AppBar(
         title: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
