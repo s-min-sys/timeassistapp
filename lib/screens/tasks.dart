@@ -4,6 +4,7 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeassistapp/components/alert.dart';
 import 'package:timeassistapp/components/netutils.dart';
@@ -87,8 +88,8 @@ class _TaskWidgetState extends State<TasksWidget> {
   String notifyID = '';
   final customServerURLController = TextEditingController();
   bool devMode = false;
-
   bool get isAndroid => !kIsWeb && Platform.isAndroid;
+  var isDialOpen = ValueNotifier<bool>(false);
 
   refreshTasks() async {
     NetUtils.requestHttp('/shows', method: NetUtils.getMethod,
@@ -233,64 +234,75 @@ class _TaskWidgetState extends State<TasksWidget> {
               width: 4,
             ),
             Expanded(
-              child: Text(
-                dateTime.toString().substring(0, 19),
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.black,
-                ),
+              child: Column(
+                children: [
+                  Text(
+                    Global.getServerURL(),
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: Colors.black,
+                    ),
+                  ),
+                  Text(
+                    dateTime.toString().substring(0, 19),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
               ),
-            ),
-            IconButton(
-              icon: const Icon(
-                Icons.add_alarm,
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const AlarmAdd()),
-                );
-              },
-              tooltip: '新增闹钟',
-            ),
-            IconButton(
-              icon: const Icon(
-                Icons.alarm_on,
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const AlarmDetail()),
-                );
-              },
-              tooltip: '激活的闹钟',
-            ),
-            IconButton(
-              icon: const Icon(
-                Icons.add_task,
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const TaskAdd()),
-                );
-              },
-              tooltip: '新增任务',
-            ),
-            IconButton(
-              icon: const Icon(
-                Icons.task_rounded,
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const TasksDetail()),
-                );
-              },
-              tooltip: '激活的任务',
             ),
           ],
         ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: SpeedDial(
+        icon: Icons.add,
+        activeIcon: Icons.close,
+        spacing: 3,
+        children: [
+          SpeedDialChild(
+            child: const Icon(Icons.task_rounded),
+            label: '激活的任务',
+            onTap: () => {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const TasksDetail()),
+              )
+            },
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.add_task),
+            label: '新增任务',
+            onTap: () => {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const TaskAdd()),
+              )
+            },
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.alarm_on),
+            label: '激活的闹钟',
+            onTap: () => {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AlarmDetail()),
+              )
+            },
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.add_alarm),
+            label: '新增闹钟',
+            onTap: () => {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AlarmAdd()),
+              )
+            },
+          ),
+        ],
       ),
       body: Center(
         child: Column(

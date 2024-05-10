@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:http/http.dart' as http;
+import 'dart:io';
 import 'package:timeassistapp/components/global.dart';
 
 class NetUtils {
@@ -77,18 +77,26 @@ class NetUtils {
     try {
       EasyLoading.show(status: '加载中...', dismissOnTap: false);
 
-      final response = await http.get(
-        getUri(url, parameters),
-        headers: {
-          'Accept': 'application/json,*/*',
-          'Content-Type': 'application/json',
-          'Authorization': 'Basic ${Global.token}',
-        },
-      ).timeout(const Duration(hours: 6));
+      final client = HttpClient();
+
+      String? proxy = Global.proxy;
+      if (proxy != null && proxy != '') {
+        client.findProxy = (url) {
+          return 'PROXY $proxy';
+        };
+      }
+
+      HttpClientRequest request = await client.getUrl(getUri(url, parameters));
+      request.headers.add('Accept', 'application/json,*/*');
+      request.headers.add('Content-Type', 'application/json');
+      request.headers.add('Authorization', 'Basic ${Global.token}');
+
+      HttpClientResponse response =
+          await request.close().timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         Map<String, dynamic> resp =
-            json.decode(utf8.decode(response.bodyBytes));
+            json.decode(await response.transform(utf8.decoder).join());
 
         var code = resp['code'];
         if (code < 100) {
@@ -142,19 +150,25 @@ class NetUtils {
     try {
       EasyLoading.show(status: '加载中...', dismissOnTap: false);
 
-      final response = await http
-          .post(getUri(url, parameters),
-              headers: {
-                'Accept': 'application/json,*/*',
-                'Content-Type': 'application/json',
-                'Authorization': 'Basic ${Global.token}',
-              },
-              body: jsonEncode(data))
-          .timeout(const Duration(hours: 6));
+      final client = HttpClient();
+      String? proxy = Global.proxy;
+      if (proxy != null && proxy != '') {
+        client.findProxy = (url) {
+          return 'PROXY $proxy';
+        };
+      }
+      HttpClientRequest request = await client.postUrl(getUri(url, parameters));
+      request.headers.add('Accept', 'application/json,*/*');
+      request.headers.add('Content-Type', 'application/json');
+      request.headers.add('Authorization', 'Basic ${Global.token}');
+      request.add(utf8.encode(jsonEncode(data)));
+
+      HttpClientResponse response =
+          await request.close().timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         Map<String, dynamic> resp =
-            json.decode(utf8.decode(response.bodyBytes));
+            json.decode(await response.transform(utf8.decoder).join());
 
         var code = resp['code'];
         if (code < 100) {

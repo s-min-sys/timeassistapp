@@ -4,12 +4,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Global {
   static bool _devMode = false;
   static String? _customServerURL = '';
+  static String? _proxy = '';
 
   static late SharedPreferences gSP;
 
   static void realInit(SharedPreferences sp) {
     gSP = sp;
     customServerURL = gSP.getString('custom_server_url');
+    _proxy = gSP.getString('proxy');
     bool? f = gSP.getBool('dev_mode');
     if (f != null) {
       devMode = f;
@@ -41,6 +43,20 @@ class Global {
       gSP.setString('custom_server_url', '');
     } else {
       gSP.setString('custom_server_url', v);
+    }
+  }
+
+  static String? get proxy {
+    return _proxy;
+  }
+
+  static set proxy(String? v) {
+    _proxy = v;
+
+    if (v == null) {
+      gSP.setString('proxy', '');
+    } else {
+      gSP.setString('proxy', v);
     }
   }
 

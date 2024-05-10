@@ -18,8 +18,15 @@ class _LoginState extends State<Login> {
   final userNameController = TextEditingController();
   final passwordController = TextEditingController();
 
+  final customServerURLController = TextEditingController();
+  bool devMode = false;
+  final proxyController = TextEditingController();
+
   @override
   void initState() {
+    customServerURLController.addListener(() {
+      setState(() {});
+    });
     fetchTasksByToken(context);
     super.initState();
   }
@@ -28,12 +35,89 @@ class _LoginState extends State<Login> {
   void dispose() {
     userNameController.dispose();
     passwordController.dispose();
+    customServerURLController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      onDrawerChanged: (bool isOpened) {
+        if (!isOpened) {
+          String u = customServerURLController.text;
+          if (u != '') {
+            Global.customServerURL = u;
+          } else {
+            Global.customServerURL = '';
+            Global.devMode = devMode;
+          }
+
+          String p = proxyController.text;
+          if (p != '') {
+            Global.proxy = p;
+          } else {
+            Global.proxy = '';
+          }
+
+          fetchTasksByToken(context);
+        } else {
+          String? customServerURL = Global.customServerURL;
+          if (customServerURL != null) {
+            customServerURLController.text = customServerURL;
+          } else {
+            devMode = Global.devMode;
+          }
+
+          String? p = Global.proxy;
+          if (p != null && p != '') {
+            proxyController.text = p;
+          }
+        }
+      },
+      drawer: Drawer(
+          child: ListView(
+        children: [
+          const DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.blue,
+            ),
+            child: Text('设置'),
+          ),
+          ListTile(
+            title: TextField(
+              decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: '自定义服务地址',
+                  hintText: '输入自定义服务地址'),
+              controller: customServerURLController,
+            ),
+          ),
+          Visibility(
+            visible: customServerURLController.text == '',
+            child: CheckboxListTile(
+              title: const Text('预置本地服务地址'),
+              onChanged: (bool? value) {
+                setState(() {
+                  devMode = value!;
+                });
+              },
+              value: devMode,
+            ),
+          ),
+          ListTile(
+            title: TextField(
+              decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: '代理',
+                  hintText: '输入HTTP或者HTTPS代理地址和端口号'),
+              controller: proxyController,
+            ),
+          ),
+        ],
+      )),
+      appBar: AppBar(
+        title: const Text('登录'),
+      ),
       body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.all(80.0),
