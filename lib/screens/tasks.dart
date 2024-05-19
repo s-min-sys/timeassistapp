@@ -80,7 +80,7 @@ class TasksWidget extends StatefulWidget {
 
 var refreshCounterMax = 120.0;
 
-class _TaskWidgetState extends State<TasksWidget> {
+class _TaskWidgetState extends State<TasksWidget> with WidgetsBindingObserver {
   List<Task> activatedTasks = [];
   Timer? _timer;
   double refreshCounter = refreshCounterMax;
@@ -136,11 +136,26 @@ class _TaskWidgetState extends State<TasksWidget> {
 
     refreshTasks();
     startRefreshIfNoTimer();
+
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    if (state == AppLifecycleState.resumed) {
+      refreshTasks();
+      startRefreshIfNoTimer();
+    } else if (state == AppLifecycleState.paused) {
+      stopRefrsh();
+    }
   }
 
   @override
   void dispose() {
     stopRefrsh();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
